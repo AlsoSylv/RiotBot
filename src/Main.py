@@ -2,7 +2,7 @@ import cassiopeia as cass
 import discord
 from cassiopeia import Summoner
 from commands.Stats import Stats
-from commands import ConfigFile
+from commands import ConfigFile, cdragonrates
 
 def setup(bot):
     bot.add_cog(Stats(bot))
@@ -18,6 +18,7 @@ print("Test {name} {level} {region} {icon}".format(name=summoner.name,
                                             region=summoner.region,
                                             icon=summoner.profile_icon.url,))
 
+cdragonrates
 bot = discord.Bot()
 
 setup(bot)
