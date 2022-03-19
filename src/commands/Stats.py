@@ -20,7 +20,7 @@ class Stats(commands.Cog):
         if (summoner.exists != True): 
                 embed = discord.Embed(title=f"{name}",
                             description=f"{name} does not exist.")
-                icon_url="https://ddragon.leagueoflegends.com/cdn/latest/img/profileicon/0.png"
+                icon_url="https://ddragon.leagueoflegends.com/cdn/12.5.1/img/profileicon/0.png"
         else:
             try:
                 cms = cass.get_champion_masteries(summoner, region)
@@ -44,9 +44,6 @@ Third: {cms[2].champion.name} Level: {cms[2].level}"""
         embed.set_thumbnail(url=icon_url)
         await ctx.respond(embed=embed)
         
-    # x = summoner.current_match.participants[0].side
-    # print(x)
-    #I need to sort this somehow, but I'm not sure how, and Match v5 is broken so this is not gonna happen for now
     @slash_command()
     async def game(self, ctx, name, region='NA'):
         await ctx.defer()
@@ -54,106 +51,60 @@ Third: {cms[2].champion.name} Level: {cms[2].level}"""
         if (summoner.exists != True):
             embed = discord.Embed(title=f"{name}",
                             description=f"{name} does not exist.")
-            icon_url="https://ddragon.leagueoflegends.com/cdn/latest/img/profileicon/0.png"
+            icon_url="https://ddragon.leagueoflegends.com/cdn/12.5.1/img/profileicon/0.png"
             embed.set_thumbnail(url=icon_url)
             await ctx.respond(embed=embed)
         else:
             try: 
                 game = cass.get_current_match(summoner, region)
                 champion_roles = pull_data()
-                blue_team = []
-                Blue_champs = []
-                Blue_ranks = []
+                
+                blue_team = [1, 2, 3, 4, 5]
+                Blue_champs = [1, 2, 3, 4, 5]
+                Blue_ranks = [1, 2, 3, 4, 5]
+                
                 Blue = game.blue_team
                 Blue_player = Blue.participants
                 Blue_roles = get_team_roles(Blue, champion_roles)
-                red_team = []
-                Red_champs = []
-                Red_ranks = []
+                
+                red_team = [1, 2, 3, 4, 5]
+                Red_champs = [1, 2, 3, 4, 5]
+                Red_ranks = [1, 2, 3, 4, 5]
+                
                 Red = game.red_team
                 Red_player = Red.participants
                 Red_roles = get_team_roles(Red, champion_roles)
-#            print({role.name: champion.id for role, champion in Blue_roles.items()})
+                
+                Blue_id = [1, 2, 3, 4, 5]
+                Red_id = [1, 2, 3, 4, 5]
+                
                 blue_roles = [champion.id for roles, champion in Blue_roles.items()]
                 red_roles = [champion.id for roles, champion in Red_roles.items()]
-#            print(blue_roles)
-                #Blue Team
-                for y in range(5):
-                    if Blue_player[y].champion.id == blue_roles[0]:
-                        blue_team.insert(0, Blue_player[y].summoner.name)
-                        Blue_champs.insert(0, Blue_player[y].champion.name)
-                        try:
-                            Blue_ranks.insert(0, Blue_player[y].summoner.ranks[Queue.ranked_solo_fives])
-                        except:
-                            Blue_ranks.insert(0, 'Unranked')
-                    elif Blue_player[y].champion.id == blue_roles[1]:
-                        blue_team.insert(1, Blue_player[y].summoner.name)
-                        Blue_champs.insert(1, Blue_player[y].champion.name)
-                        try:
-                            Blue_ranks.insert(1, Blue_player[y].summoner.ranks[Queue.ranked_solo_fives])
-                        except:
-                            Blue_ranks.insert(1, 'Unranked')
-                    elif Blue_player[y].champion.id == blue_roles[2]:
-                        blue_team.insert(2, Blue_player[y].summoner.name)
-                        Blue_champs.insert(2, Blue_player[y].champion.name)
-                        try:
-                            Blue_ranks.insert(2, Blue_player[y].summoner.ranks[Queue.ranked_solo_fives])
-                        except:
-                            Blue_ranks.insert(2, 'Unranked')
-                    elif Blue_player[y].champion.id == blue_roles[3]:
-                        blue_team.insert(3, Blue_player[y].summoner.name)
-                        Blue_champs.insert(3, Blue_player[y].champion.name)
-                        try:
-                            Blue_ranks.insert(3, Blue_player[y].summoner.ranks[Queue.ranked_solo_fives])
-                        except:
-                            Blue_ranks.insert(3, 'Unranked')
-                    else: # Blue_player[y].champion.id == blue_roles[4]
-                        blue_team.insert(4, Blue_player[y].summoner.name)
-                        Blue_champs.insert(4, Blue_player[y].champion.name)
-                        try:
-                            Blue_ranks.insert(4, Blue_player[y].summoner.ranks[Queue.ranked_solo_fives])
-                        except:
-                            Blue_ranks.insert(4, 'Unranked')
-                print(blue_team)
+                for y in range(5):               
+                    for ii, i in enumerate(blue_roles):
+                        if i == Blue_player[y].champion.id:
+                            blue_team[ii] = Blue_player[y].summoner.name
+                            Blue_champs[ii] =  Blue_player[y].champion.name
+                            Blue_id[ii] = Blue_player[y].champion.id
+                            try:
+                                Blue_ranks[ii] = Blue_player[y].summoner.ranks[Queue.ranked_solo_fives]
+                            except:
+                                Blue_ranks[ii] = 'Unranked'
+                print(blue_roles)
+                print(Blue_id)
                 
-                #Red Team
                 for y in range(5):
-                    if Red_player[y].champion.id == red_roles[0]:
-                        red_team.insert(0, Red_player[y].summoner.name)
-                        Red_champs.insert(0, Red_player[y].champion.name)
-                        try:
-                            Red_ranks.insert(0, Red_player[y].summoner.ranks[Queue.ranked_solo_fives])
-                        except:
-                            Red_ranks.insert(0, 'Unranked')
-                    elif Red_player[y].champion.id == red_roles[1]:
-                        red_team.insert(1, Red_player[y].summoner.name)
-                        Red_champs.insert(1, Red_player[y].champion.name)
-                        try:
-                            Red_ranks.insert(1, Red_player[y].summoner.ranks[Queue.ranked_solo_fives])
-                        except:
-                            Red_ranks.insert(1, 'Unranked')
-                    elif Red_player[y].champion.id == red_roles[2]:
-                        red_team.insert(2, Red_player[y].summoner.name)
-                        Red_champs.insert(2, Red_player[y].champion.name)
-                        try:
-                            Red_ranks.insert(2, Red_player[y].summoner.ranks[Queue.ranked_solo_fives])
-                        except:
-                            Red_ranks.insert(2, 'Unranked')
-                    elif Red_player[y].champion.id == red_roles[3]:
-                        red_team.insert(3, Red_player[y].summoner.name)
-                        Red_champs.insert(3, Red_player[y].champion.name)
-                        try:
-                            Red_ranks.insert(3, Red_player[y].summoner.ranks[Queue.ranked_solo_fives])
-                        except:
-                            Red_ranks.insert(3, 'Unranked')
-                    else: # Red_player[y].champion.id == red_roles[4]
-                        red_team.insert(4, Red_player[y].summoner.name)
-                        Red_champs.insert(4, Red_player[y].champion.name)
-                        try:
-                            Red_ranks.insert(4, Red_player[y].summoner.ranks[Queue.ranked_solo_fives])
-                        except:
-                            Red_ranks.insert(4, 'Unranked')
-                print(red_team)
+                    for ii, i in enumerate(red_roles):
+                        if i == Red_player[y].champion.id:
+                            red_team[ii] = Red_player[y].summoner.sanitized_name
+                            Red_champs[ii] = Red_player[y].champion.name
+                            Red_id[ii] = Red_player[y].champion.id
+                            try:
+                                Red_ranks[ii] = Red_player[y].summoner.ranks[Queue.ranked_solo_fives]
+                            except: 
+                                Red_ranks[ii] = 'Unranked'
+                print(Red_id)
+                print(red_roles)
                 
                 embed = discord.Embed(title=f"{summoner.name}'s game",
                               description=f"""Blue Team:
@@ -180,19 +131,3 @@ Red Team:
                 icon_url=summoner.profile_icon.url
                 embed.set_thumbnail(url=icon_url)
                 await ctx.respond(embed=embed)
- 
-#This is not needed, cass always returns blue team then red team        
-#            blue_team = []
-#            red_team = []
-#            y = 0
-#            for y in range(10):
-#                if game.participants[y].side is Side.blue:
-#                    summonerBlue = game.participants[y]
-#                    blue_team.append(summonerBlue.summoner.name)
-#                    blue_team.append(summonerBlue.champion.name)
-#                else:
-#                    summonerRed = game.participants[y]
-#                    red_team.append(summonerRed.summoner.name)
-#                    red_team.append(summonerRed.champion.name)
-#                print(blue_team)
-#                print(red_team)
