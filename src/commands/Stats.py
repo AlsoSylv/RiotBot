@@ -1,11 +1,13 @@
 import cassiopeia as cass
-import discord
+import discord, re, requests
 from cassiopeia import Summoner, Queue
 from datapipelines.common import NotFoundError
 from discord.ext import commands
 from roleidentification import pull_data
 from cassiopeia.core import champion
 from roleidentification.utilities import get_team_roles
+from LoL_Scrapper import ugg
+
 from discord.commands import (
     slash_command,
 )
@@ -126,8 +128,38 @@ Red Team:
                 await ctx.respond(embed=embed)
             except NotFoundError:
                 embed = discord.Embed(title=f"{summoner.name}'s game",
-                              description=f"{summoner.name} is currently not in a gamep",
+                              description=f"{summoner.name} is currently not in a game",
                               color=0xFFFFFF)
                 icon_url=summoner.profile_icon.url
                 embed.set_thumbnail(url=icon_url)
                 await ctx.respond(embed=embed)
+                
+    @slash_command(guild_ids=[633796158120001537])
+    async def uggstats(self, ctx, name, lane, region='NA'):
+        await ctx.defer()
+        u = ugg.UGG
+        champ = re.sub(r'\W+', '', name.lower())
+        try:
+            wr = u.Win_rate(self, name, lane)
+            br = u.Ban_rate(self, name, lane)
+            pr = u.Pick_rate(self, name, lane)
+            stats = u.Shards(self, name, lane)
+            runes = u.Runes(self, name, lane)
+            r = requests.get(f"https://raw.communitydragon.org/latest/game/assets/characters/{champ}/hud/{champ}_square.png")
+            if r.status_code == 404:
+                icon_url = f"https://raw.communitydragon.org/latest/game/assets/characters/{champ}/hud/{champ}_square_0.png"
+            else:
+                icon_url = f"https://raw.communitydragon.org/latest/game/assets/characters/{champ}/hud/{champ}_square.png"
+            embed = discord.Embed(title=f"{name}", description=f"""Win rate: **{wr}**
+Ban rate: **{br}**
+Pick rate: **{pr}**
+Primary: **{runes[0]}, {runes[1]}, {runes[2]}, {runes[3]}**
+Secondary: **{runes[4]}, {runes[5]}**
+Stats: **{stats[0]}, {stats[1]}, {stats[2]}**""", color=0xFFFFFF)
+            embed.set_thumbnail(url=icon_url)
+            await ctx.respond(embed=embed)
+        except:
+            icon_url = "https://raw.communitydragon.org/latest/game/data/images/ui/pingmia.png"
+            embed = discord.Embed(title=f"{name}", description="Name or lane are misspelled", color=0xFFFFFF)
+            embed.set_thumbnail(url=icon_url)
+            await ctx.respond(embed=embed)

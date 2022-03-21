@@ -1,0 +1,3 @@
+[submodule "LoL-Scrapper"]
+	path = LoL-Scrapper
+	url = https://github.com/AlsoSylv/LoL-Scrapper.git
