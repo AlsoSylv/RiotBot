@@ -134,18 +134,17 @@ Red Team:
                 embed.set_thumbnail(url=icon_url)
                 await ctx.respond(embed=embed)
                 
-    @slash_command(guild_ids=[633796158120001537])
+    @slash_command()
     async def uggstats(self, ctx, name, lane, region='NA'):
-        s = time.perf_counter()
         await ctx.defer()
         u = ugg.UGG
         champ = re.sub(r'\W+', '', name.lower())
         try:
-            wr = await u.Win_rate(self, name, lane)
-            br = await u.Ban_rate(self, name, lane)
-            pr = await u.Pick_rate(self, name, lane)
-            stats = await u.Shards(self, name, lane)
-            runes = await u.Runes(self, name, lane)
+            wr = await u.Win_rate(champ, lane)
+            br = await u.Ban_rate(champ, lane)
+            pr = await u.Pick_rate(champ, lane)
+            stats = await u.Shards(champ, lane)
+            runes = await u.Runes(champ, lane)
             r = requests.get(f"https://raw.communitydragon.org/latest/game/assets/characters/{champ}/hud/{champ}_square.png")
             if r.status_code == 404:
                 icon_url = f"https://raw.communitydragon.org/latest/game/assets/characters/{champ}/hud/{champ}_square_0.png"
@@ -158,8 +157,9 @@ Primary: **{runes[0]}, {runes[1]}, {runes[2]}, {runes[3]}**
 Secondary: **{runes[4]}, {runes[5]}**
 Stats: **{stats[0]}, {stats[1]}, {stats[2]}**""", color=0xFFFFFF)
             embed.set_thumbnail(url=icon_url)
-            e = time.perf_counter()
-            print(e - s)
             await ctx.respond(embed=embed)
-        except Exception as e:
-            print(e)
+        except:
+            icon_url = "https://raw.communitydragon.org/latest/game/data/images/ui/pingmia.png"
+            embed = discord.Embed(title=f"{name}", description="Name or lane are misspelled", color=0xFFFFFF)
+            embed.set_thumbnail(url=icon_url)
+            await ctx.respond(embed=embed)
