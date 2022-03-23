@@ -134,9 +134,9 @@ Red Team:
                 embed.set_thumbnail(url=icon_url)
                 await ctx.respond(embed=embed)
                 
-    @slash_command()
+    @slash_command(guild_ids=[633796158120001537])
     async def uggstats(self, ctx, name, lane, region='NA'):
-        await ctx.defer()
+#        await ctx.defer()
         u = ugg.UGG
         champ = re.sub(r'\W+', '', name.lower())
         try:
