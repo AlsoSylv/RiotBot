@@ -11,6 +11,7 @@ from LoL_Scrapper import ugg
 from discord.commands import (
     slash_command,
 )
+import threading
 
 class Stats(commands.Cog):
     def __init__(self, bot):
@@ -48,6 +49,7 @@ Third: {cms[2].champion.name} Level: {cms[2].level}"""
         
     @slash_command()
     async def game(self, ctx, name, region='NA'):
+        e = time.perf_counter()
         await ctx.defer()
         summoner = Summoner(name=name, region=region)
         if (summoner.exists != True):
@@ -61,53 +63,52 @@ Third: {cms[2].champion.name} Level: {cms[2].level}"""
                 game = cass.get_current_match(summoner, region)
                 champion_roles = pull_data()
                 
-                blue_team = [1, 2, 3, 4, 5]
-                Blue_champs = [1, 2, 3, 4, 5]
-                Blue_ranks = [1, 2, 3, 4, 5]
+                def BlueTeam():
+                    Blue = game.blue_team
+                    Blue_roles = get_team_roles(Blue, champion_roles)
+                    blue_roles = [champion.id for roles, champion in Blue_roles.items()]
+                    blue_team = [1, 2, 3, 4, 5]
+                    Blue_champs = [1, 2, 3, 4, 5]
+                    Blue_ranks = [1, 2, 3, 4, 5]
+                    Blue_player = Blue.participants
+                    for y in range(5):
+                        for ii, i in enumerate(blue_roles):
+                            if i == Blue_player[y].champion.id:
+                                blue_team[ii] = Blue_player[y].summoner.sanitized_name
+                                Blue_champs[ii] =  Blue_player[y].champion.name
+                                try:
+                                    Blue_ranks[ii] = Blue_player[y].summoner.ranks[Queue.ranked_solo_fives]
+                                except:
+                                    Blue_ranks[ii] = 'Unranked'
+                    return blue_team, Blue_champs, Blue_ranks
                 
-                Blue = game.blue_team
-                Blue_player = Blue.participants
-                Blue_roles = get_team_roles(Blue, champion_roles)
+                def RedTeam():
+                    Red = game.red_team
+                    Red_roles = get_team_roles(Red, champion_roles)
+                    red_roles = [champion.id for roles, champion in Red_roles.items()]
+                    red_team = [1, 2, 3, 4, 5]
+                    Red_champs = [1, 2, 3, 4, 5]
+                    Red_ranks = [1, 2, 3, 4, 5]
+                    Red_player = Red.participants
+                    for y in range(5):
+                        for ii, i in enumerate(red_roles):
+                            if i == Red_player[y].champion.id:
+                                red_team[ii] = Red_player[y].summoner.sanitized_name
+                                Red_champs[ii] = Red_player[y].champion.name
+                                try:
+                                    Red_ranks[ii] = Red_player[y].summoner.ranks[Queue.ranked_solo_fives]
+                                except: 
+                                    Red_ranks[ii] = 'Unranked'
+                    return red_team, Red_champs, Red_ranks
                 
-                red_team = [1, 2, 3, 4, 5]
-                Red_champs = [1, 2, 3, 4, 5]
-                Red_ranks = [1, 2, 3, 4, 5]
+                BlueThread = threading.Thread(target=BlueTeam)
+                RedThread = threading.Thread(target=RedTeam)
+                BlueThread.start()
+                RedThread.start()
                 
-                Red = game.red_team
-                Red_player = Red.participants
-                Red_roles = get_team_roles(Red, champion_roles)
-                
-                Blue_id = [1, 2, 3, 4, 5]
-                Red_id = [1, 2, 3, 4, 5]
-                
-                blue_roles = [champion.id for roles, champion in Blue_roles.items()]
-                red_roles = [champion.id for roles, champion in Red_roles.items()]
-                for y in range(5):               
-                    for ii, i in enumerate(blue_roles):
-                        if i == Blue_player[y].champion.id:
-                            blue_team[ii] = Blue_player[y].summoner.name
-                            Blue_champs[ii] =  Blue_player[y].champion.name
-                            Blue_id[ii] = Blue_player[y].champion.id
-                            try:
-                                Blue_ranks[ii] = Blue_player[y].summoner.ranks[Queue.ranked_solo_fives]
-                            except:
-                                Blue_ranks[ii] = 'Unranked'
-                print(blue_roles)
-                print(Blue_id)
-                
-                for y in range(5):
-                    for ii, i in enumerate(red_roles):
-                        if i == Red_player[y].champion.id:
-                            red_team[ii] = Red_player[y].summoner.sanitized_name
-                            Red_champs[ii] = Red_player[y].champion.name
-                            Red_id[ii] = Red_player[y].champion.id
-                            try:
-                                Red_ranks[ii] = Red_player[y].summoner.ranks[Queue.ranked_solo_fives]
-                            except: 
-                                Red_ranks[ii] = 'Unranked'
-                print(Red_id)
-                print(red_roles)
-                
+                red_team, Red_champs, Red_ranks = RedTeam()
+                blue_team, Blue_champs, Blue_ranks = BlueTeam()
+
                 embed = discord.Embed(title=f"{summoner.name}'s game",
                               description=f"""Blue Team:
 {blue_team[0]}, {Blue_ranks[0]}: playing {Blue_champs[0]}
@@ -125,6 +126,8 @@ Red Team:
                               color=0xFFFFFF)
                 icon_url=summoner.profile_icon.url
                 embed.set_thumbnail(url=icon_url)
+                s = time.perf_counter()
+                print(s - e)
                 await ctx.respond(embed=embed)
             except NotFoundError:
                 embed = discord.Embed(title=f"{summoner.name}'s game",
@@ -136,6 +139,7 @@ Red Team:
                 
     @slash_command(guild_ids=[633796158120001537])
     async def uggstats(self, ctx, name, lane, region='NA'):
+        e = time.perf_counter()
 #        await ctx.defer()
         u = ugg.UGG
         champ = re.sub(r'\W+', '', name.lower())
@@ -157,7 +161,9 @@ Primary: **{runes[0]}, {runes[1]}, {runes[2]}, {runes[3]}**
 Secondary: **{runes[4]}, {runes[5]}**
 Stats: **{stats[0]}, {stats[1]}, {stats[2]}**""", color=0xFFFFFF)
             embed.set_thumbnail(url=icon_url)
+            s = time.perf_counter()
             await ctx.respond(embed=embed)
+            print(s - e)
         except:
             icon_url = "https://raw.communitydragon.org/latest/game/data/images/ui/pingmia.png"
             embed = discord.Embed(title=f"{name}", description="Name or lane are misspelled", color=0xFFFFFF)
